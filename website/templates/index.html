@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Geospatial API - User Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "tertiary": "#605c78",
+            "surface-container-high": "#e1e9ee",
+            "secondary-dim": "#465468",
+            "tertiary-container": "#e3dbfd",
+            "secondary-fixed": "#d5e3fc",
+            "tertiary-fixed": "#e3dbfd",
+            "secondary-container": "#d5e3fc",
+            "on-background": "#2a3439",
+            "inverse-primary": "#dae2fd",
+            "primary-container": "#dae2fd",
+            "inverse-surface": "#0b0f10",
+            "on-error-container": "#752121",
+            "on-primary": "#f7f7ff",
+            "secondary-fixed-dim": "#c7d5ed",
+            "outline": "#717c82",
+            "on-primary-fixed": "#373f54",
+            "on-surface-variant": "#566166",
+            "error": "#9f403d",
+            "on-surface": "#2a3439",
+            "surface-container-lowest": "#ffffff",
+            "surface": "#f7f9fb",
+            "on-error": "#fff7f6",
+            "surface-bright": "#f7f9fb",
+            "surface-container-highest": "#d9e4ea",
+            "on-tertiary-fixed": "#3e3a54",
+            "primary": "#565e74",
+            "on-secondary-fixed-variant": "#4e5c71",
+            "error-dim": "#4e0309",
+            "error-container": "#fe8983",
+            "surface-variant": "#d9e4ea",
+            "surface-tint": "#565e74",
+            "tertiary-fixed-dim": "#d4cdee",
+            "on-secondary-container": "#455367",
+            "primary-fixed-dim": "#ccd4ee",
+            "tertiary-dim": "#54506b",
+            "outline-variant": "#a9b4b9",
+            "on-tertiary": "#fcf7ff",
+            "surface-container": "#e8eff3",
+            "on-secondary": "#f8f8ff",
+            "inverse-on-surface": "#9a9d9f",
+            "primary-fixed": "#dae2fd",
+            "on-tertiary-container": "#514d68",
+            "on-secondary-fixed": "#324053",
+            "secondary": "#526074",
+            "surface-dim": "#cfdce3",
+            "on-primary-container": "#4a5167",
+            "on-primary-fixed-variant": "#535b71",
+            "surface-container-low": "#f0f4f7",
+            "primary-dim": "#4a5268",
+            "background": "#f7f9fb",
+            "on-tertiary-fixed-variant": "#5b5672"
+          },
+          fontFamily: {
+            "headline": ["Inter", "sans-serif"],
+            "body": ["Inter", "sans-serif"],
+            "label": ["Inter", "sans-serif"]
+          },
+          borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; color: #2a3439; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .atmospheric-shadow { box-shadow: 0 10px 30px -5px rgba(42, 52, 57, 0.08); }
+    .primary-gradient { background: linear-gradient(135deg, #565e74 0%, #4a5268 100%); }
+  </style>
+</head>
+
+<body class="antialiased min-h-screen flex items-start justify-center p-6 md:p-12 bg-surface">
+  <div class="max-w-6xl w-full space-y-6">
+
+    {# ── Global error banner ── #}
+    {% if form_error %}
+    <div class="flex items-center gap-3 bg-error-container text-on-error-container px-5 py-3 rounded-lg text-sm font-semibold atmospheric-shadow">
+      <span class="material-symbols-outlined text-base">error</span>
+      {{ form_error }}
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+      <!-- ══════════════════════════════════════════════
+           COLUMN 1 — Add + Search forms
+      ══════════════════════════════════════════════ -->
+      <div class="space-y-8 flex flex-col">
+
+        <!-- ── Add User Card ── -->
+        <section class="bg-surface-container-lowest rounded-xl atmospheric-shadow p-6 border border-outline-variant/10">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-on-surface flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary">person_add</span> Add User
+            </h3>
+          </div>
+
+          <form action="/add-user" method="POST" class="space-y-5">
+
+            <div>
+              <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">
+                User Name
+              </label>
+              <input
+                name="name"
+                class="w-full bg-surface-container-low border-none rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                placeholder="e.g. Logistics Node 01"
+                type="text"
+                maxlength="100"
+                required />
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">
+                  Latitude
+                </label>
+                <input
+                  name="lat"
+                  class="w-full bg-surface-container-low border-none rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                  placeholder="34.0522"
+                  type="text"
+                  required />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">
+                  Longitude
+                </label>
+                <input
+                  name="long"
+                  class="w-full bg-surface-container-low border-none rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                  placeholder="-118.2437"
+                  type="text"
+                  required />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">
+                Service Radius (KM) —
+                <span id="radius-label" class="text-primary font-bold">50 km</span>
+              </label>
+              <div class="relative">
+                <input
+                  id="add-radius"
+                  name="service_radius"
+                  class="w-full h-1.5 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary"
+                  max="500" min="1" type="range" value="50"
+                  oninput="document.getElementById('radius-label').textContent = this.value + ' km'" />
+                <div class="flex justify-between mt-2 text-[10px] font-mono text-outline">
+                  <span>1 km</span><span>250 km</span><span>500 km</span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full mt-4 py-3 primary-gradient text-white rounded-lg font-bold shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all active:translate-y-0.5">
+              Submit
+            </button>
+
+          </form>
+        </section>
+
+        <!-- ── Search User Card ── -->
+        <section class="bg-surface-container-lowest rounded-xl atmospheric-shadow p-6 border border-outline-variant/10">
+          <div class="mb-6">
+            <h3 class="text-xl font-bold text-on-surface flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary">distance</span> Search User
+            </h3>
+          </div>
+
+          <form action="/search-users" method="POST" class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
+                  Search Latitude
+                </label>
+                <input
+                  name="search_lat"
+                  class="w-full bg-surface-container-low border-none rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                  placeholder="34.05"
+                  type="text"
+                  required />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">
+                  Search Longitude
+                </label>
+                <input
+                  name="search_long"
+                  class="w-full bg-surface-container-low border-none rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                  placeholder="-118.24"
+                  type="text"
+                  required />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full py-2 bg-primary text-white rounded-lg text-sm font-bold flex items-center justify-center gap-2 hover:bg-primary-dim transition-colors">
+              <span class="material-symbols-outlined text-sm">search</span> Search
+            </button>
+          </form>
+
+          <!-- Results area -->
+          <div class="mt-8">
+            <h4 class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-4">Results</h4>
+
+            {% if search_error %}
+              <p class="text-xs text-error font-semibold italic">{{ search_error }}</p>
+
+            {% elif search_results is none %}
+              <p class="text-xs text-on-surface-variant italic">Enter coordinates and click Search.</p>
+
+            {% elif search_results | length == 0 %}
+              <p class="text-xs text-on-surface-variant italic">No providers cover this location.</p>
+
+            {% else %}
+              <div class="space-y-2">
+                {% for item in search_results %}
+                <div class="flex items-center justify-between p-3 bg-surface-container-low rounded-lg hover:translate-x-1 transition-transform">
+                  <div class="flex items-center gap-3">
+                    <div class="w-2 h-2 rounded-full {{ 'bg-primary' if loop.first else 'bg-outline-variant' }}"></div>
+                    <span class="text-sm font-medium text-on-surface">{{ item.user.name }}</span>
+                  </div>
+                  <span class="text-[10px] font-mono {{ 'text-primary font-bold' if loop.first else 'text-on-surface-variant' }}">
+                    {{ item.distance_km }} km away
+                  </span>
+                </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </section>
+
+      </div><!-- /col 1 -->
+
+      <!-- ══════════════════════════════════════════════
+           COLUMN 2 — Users table
+      ══════════════════════════════════════════════ -->
+      <div class="flex flex-col h-full">
+        <section class="bg-surface-container-lowest rounded-xl atmospheric-shadow border border-outline-variant/10 overflow-hidden flex-1">
+
+          <div class="p-6 bg-surface-container-low/50">
+            <h3 class="text-xl font-bold text-on-surface flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary">list_alt</span> List User
+            </h3>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-surface-container-low/30 border-b border-outline-variant/5">
+                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Name</th>
+                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Coordinates</th>
+                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Radius</th>
+                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-outline-variant/5">
+
+                {% set palettes = [
+                  ('bg-primary-container',   'text-primary'),
+                  ('bg-secondary-container', 'text-secondary'),
+                  ('bg-tertiary-container',  'text-tertiary')
+                ] %}
+
+                {% if users %}
+                  {% for u in users %}
+                  {% set pal = palettes[loop.index0 % palettes | length] %}
+                  {% set lat_dir = 'N' if u.latitude  >= 0 else 'S' %}
+                  {% set lon_dir = 'E' if u.longitude >= 0 else 'W' %}
+
+                  <tr class="hover:bg-surface-container-low transition-colors">
+                    <td class="px-6 py-4">
+                      <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded {{ pal[0] }} flex items-center justify-center {{ pal[1] }} font-bold text-xs">
+                          {{ u.name[0] | upper }}
+                        </div>
+                        <span class="text-sm font-semibold text-on-surface">{{ u.name }}</span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 font-mono text-xs text-on-surface-variant">
+                      {{ "%.4f"|format(u.latitude | abs) }}° {{ lat_dir }},
+                      {{ "%.4f"|format(u.longitude | abs) }}° {{ lon_dir }}
+                    </td>
+                    <td class="px-6 py-4">
+                      <span class="text-xs font-mono bg-surface-container-highest px-2 py-1 rounded">
+                        {{ u.service_radius }} km
+                      </span>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex gap-2">
+                        <!-- Edit button opens inline modal row -->
+                        <button
+                          onclick="openEdit({{ u.id }}, '{{ u.name | replace("'", "\\'") }}', {{ u.latitude }}, {{ u.longitude }}, {{ u.service_radius }})"
+                          class="p-1.5 rounded-lg hover:bg-primary-container transition-colors text-primary"
+                          title="Edit">
+                          <span class="material-symbols-outlined" style="font-size:18px">edit</span>
+                        </button>
+                        <!-- Delete form -->
+                        <form action="/delete-user/{{ u.id }}" method="POST"
+                          onsubmit="return confirm('Delete {{ u.name }}?')">
+                          <button type="submit"
+                            class="p-1.5 rounded-lg hover:bg-error-container transition-colors text-error"
+                            title="Delete">
+                            <span class="material-symbols-outlined" style="font-size:18px">delete</span>
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+
+                {% else %}
+                  <tr>
+                    <td colspan="4" class="px-6 py-10 text-center text-xs text-on-surface-variant italic">
+                      No providers registered yet.
+                    </td>
+                  </tr>
+                {% endif %}
+
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div><!-- /col 2 -->
+
+    </div><!-- /grid -->
+  </div><!-- /max-w -->
+
+  <!-- ══════════════════════════════════════════════
+       Edit Modal  (form POST to /edit-user/<id>)
+  ══════════════════════════════════════════════ -->
+  <div id="edit-modal" class="fixed inset-0 bg-black/30 flex items-center justify-center z-40 hidden">
+    <div class="bg-surface-container-lowest rounded-xl atmospheric-shadow p-6 w-full max-w-sm mx-4">
+      <h3 class="text-lg font-bold text-on-surface mb-4">Edit Provider</h3>
+
+      <form id="edit-form" action="" method="POST" class="space-y-4">
+
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Name</label>
+          <input id="edit-name" name="name"
+            class="w-full bg-surface-container-low border-none rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+            type="text" maxlength="100" required />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Latitude</label>
+            <input id="edit-lat" name="lat"
+              class="w-full bg-surface-container-low border-none rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+              type="text" required />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Longitude</label>
+            <input id="edit-lon" name="long"
+              class="w-full bg-surface-container-low border-none rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+              type="text" required />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">
+            Service Radius (KM) — <span id="edit-radius-label" class="text-primary font-bold">50 km</span>
+          </label>
+          <input id="edit-radius" name="service_radius"
+            class="w-full h-1.5 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary"
+            max="500" min="1" type="range" value="50"
+            oninput="document.getElementById('edit-radius-label').textContent = this.value + ' km'" />
+          <div class="flex justify-between mt-1 text-[10px] font-mono text-outline">
+            <span>1 km</span><span>250 km</span><span>500 km</span>
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button type="submit"
+            class="flex-1 py-2.5 primary-gradient text-white rounded-lg font-bold text-sm">
+            Save Changes
+          </button>
+          <button type="button" onclick="closeEdit()"
+            class="flex-1 py-2.5 bg-surface-container text-on-surface rounded-lg font-bold text-sm">
+            Cancel
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openEdit(id, name, lat, lon, radius) {
+      document.getElementById('edit-form').action = '/edit-user/' + id;
+      document.getElementById('edit-name').value = name;
+      document.getElementById('edit-lat').value = lat;
+      document.getElementById('edit-lon').value = lon;
+      document.getElementById('edit-radius').value = radius;
+      document.getElementById('edit-radius-label').textContent = radius + ' km';
+      document.getElementById('edit-modal').classList.remove('hidden');
+    }
+
+    function closeEdit() {
+      document.getElementById('edit-modal').classList.add('hidden');
+    }
+
+    // Close modal on backdrop click
+    document.getElementById('edit-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeEdit();
+    });
+  </script>
+
+</body>
+</html>

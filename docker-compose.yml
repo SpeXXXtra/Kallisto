@@ -1,0 +1,31 @@
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: geospatial_registry
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ppassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build: .
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: mysql+pymysql://root:password@db:3306/geospatial_registry
+      SECRET_KEY: kallisto-secret-change-in-prod
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
